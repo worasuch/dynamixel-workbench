@@ -36,12 +36,16 @@
 class DynamixelWorkbench
 {
  private:
-  DynamixelDriver driver_;
   char dxl_[64];
 
  public:
   DynamixelWorkbench();
   ~DynamixelWorkbench();
+
+  DynamixelDriver driver_;
+
+  void readAllRegisterWB(int last_address, uint8_t *value_array, uint8_t id);
+  void lookupLoadedRegisterValueWB(uint8_t *read_register_array, const char *addr_name, int32_t *value, uint8_t id);
 
   bool begin(const char* device_name = "/dev/ttyUSB0", uint32_t baud_rate = 57600);
  

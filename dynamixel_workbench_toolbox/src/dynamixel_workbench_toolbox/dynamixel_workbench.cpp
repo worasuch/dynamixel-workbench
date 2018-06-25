@@ -372,6 +372,16 @@ int32_t DynamixelWorkbench::itemRead(uint8_t id, const char* item_name)
     return data;
 }
 
+void DynamixelWorkbench::readAllRegisterWB(int last_address, uint8_t *value_array, uint8_t id)
+{
+  driver_.readAllRegister(last_address,value_array,id);
+}
+
+void DynamixelWorkbench::lookupLoadedRegisterValueWB(uint8_t *read_register_array, const char *addr_name, int32_t *value, uint8_t id)
+{
+  driver_.lookupLoadedRegisterValue(read_register_array, addr_name, value, id);
+}
+
 int32_t* DynamixelWorkbench::syncRead(const char *item_name)
 {
   static int32_t data[16];

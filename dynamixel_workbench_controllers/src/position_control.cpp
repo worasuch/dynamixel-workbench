@@ -99,14 +99,31 @@ void PositionControl::dynamixelStatePublish()
 
   for (int index = 0; index < dxl_cnt_; index++)
   {
+    int32_t read_value = 0;
+    uint8_t read_value_array[200] = {0};
+    dxl_wb_->driver_.readAllRegister(147, read_value_array, dxl_id_[index]);
+
     dynamixel_state[index].model_name          = std::string(dxl_wb_->getModelName(dxl_id_[index]));
     dynamixel_state[index].id                  = dxl_id_[index];
-    dynamixel_state[index].torque_enable       = dxl_wb_->itemRead(dxl_id_[index], "Torque_Enable");
-    dynamixel_state[index].present_position    = dxl_wb_->itemRead(dxl_id_[index], "Present_Position");
-    dynamixel_state[index].present_velocity    = dxl_wb_->itemRead(dxl_id_[index], "Present_Velocity");
-    dynamixel_state[index].goal_position       = dxl_wb_->itemRead(dxl_id_[index], "Goal_Position");
-    dynamixel_state[index].goal_velocity       = dxl_wb_->itemRead(dxl_id_[index], "Goal_Velocity");
-    dynamixel_state[index].moving              = dxl_wb_->itemRead(dxl_id_[index], "Moving");
+
+    dxl_wb_->driver_.lookupLoadedRegisterValue(read_value_array, "Torque_Enable", &read_value, dxl_id_[index]);
+    dynamixel_state[index].torque_enable       = read_value;
+    read_value = 0;
+    dxl_wb_->driver_.lookupLoadedRegisterValue(read_value_array, "Present_Position", &read_value, dxl_id_[index]);
+    dynamixel_state[index].present_position    = read_value;
+    read_value = 0;
+    dxl_wb_->driver_.lookupLoadedRegisterValue(read_value_array, "Present_Velocity", &read_value, dxl_id_[index]);
+    dynamixel_state[index].present_velocity    = read_value;
+    read_value = 0;
+    dxl_wb_->driver_.lookupLoadedRegisterValue(read_value_array, "Goal_Position", &read_value, dxl_id_[index]);
+    dynamixel_state[index].goal_position       = read_value;
+    read_value = 0;
+    dxl_wb_->driver_.lookupLoadedRegisterValue(read_value_array, "Goal_Velocity", &read_value, dxl_id_[index]);
+    dynamixel_state[index].goal_velocity       = read_value;
+    read_value = 0;
+    dxl_wb_->driver_.lookupLoadedRegisterValue(read_value_array, "Moving", &read_value, dxl_id_[index]);
+    dynamixel_state[index].moving              = read_value;
+    read_value = 0;
 
     dynamixel_state_list.dynamixel_state.push_back(dynamixel_state[index]);
   }
@@ -144,7 +161,7 @@ void PositionControl::jointStatePublish()
 void PositionControl::controlLoop()
 {
   dynamixelStatePublish();
-  jointStatePublish();
+  //jointStatePublish();
 }
 
 bool PositionControl::jointCommandMsgCallback(dynamixel_workbench_msgs::JointCommand::Request &req,
@@ -194,13 +211,13 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "position_control");
   PositionControl pos_ctrl;
 
-  ros::Rate loop_rate(250);
+  //ros::Rate loop_rate(250);
 
   while (ros::ok())
   {
     pos_ctrl.controlLoop();
     ros::spinOnce();
-    loop_rate.sleep();
+    //loop_rate.sleep();
   }
 
   return 0;

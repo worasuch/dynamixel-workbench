@@ -123,6 +123,9 @@ class DynamixelDriver
   int16_t convertTorque2Value(uint8_t id, float torque);
   float convertValue2Torque(uint8_t id, int16_t value);
 
+  bool readAllRegister(int last_address, uint8_t *value_array, uint8_t id);
+  bool lookupLoadedRegisterValue(uint8_t *read_register_array, const char *addr_name, int32_t *value, uint8_t id);
+
  private:
   void initDXLinfo(void);
   void setTools(uint16_t model_number, uint8_t id);

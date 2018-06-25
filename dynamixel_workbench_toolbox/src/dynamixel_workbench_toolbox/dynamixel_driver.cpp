@@ -489,6 +489,58 @@ bool DynamixelDriver::readRegister(uint8_t id, const char *item_name, int32_t *d
   }
 }
 
+bool DynamixelDriver::lookupLoadedRegisterValue(uint8_t *read_register_array, const char *addr_name, int32_t *value, uint8_t id)
+{
+  //dynamixel_->item_ = dynamixel_->ctrl_table_[addr_name];
+
+  ControlTableItem *cti;
+  cti = tools_[getToolsFactor(id)].getControlItem(addr_name);
+  
+  //dynamixel_tool::ControlTableItem *addr_item = dynamixel_->item_;
+
+  if (cti->data_length == 1)
+  {
+    *value = read_register_array[cti->address];
+  }
+  else if (cti->data_length == 2)
+  {
+    *value = DXL_MAKEWORD(read_register_array[cti->address], read_register_array[cti->address + 1]);
+  }
+  else if (cti->data_length == 4)
+  {
+    *value = DXL_MAKEDWORD(DXL_MAKEWORD(read_register_array[cti->address], read_register_array[cti->address + 1]),
+                           DXL_MAKEWORD(read_register_array[cti->address + 2], read_register_array[cti->address + 3]));
+  }
+
+  return true;
+}
+
+
+bool DynamixelDriver::readAllRegister(int last_address, uint8_t *value_array, uint8_t id)
+{
+  uint8_t error = 0;
+  int comm_result = COMM_RX_FAIL;
+
+  // read all reigsters starting from 0
+  comm_result = packetHandler_->readTxRx(portHandler_, id, 0, last_address, value_array, &error);
+  
+  if (comm_result == COMM_SUCCESS)
+  {
+    if (error != 0)
+    {
+      packetHandler_->printRxPacketError(error);
+    }
+
+    return true;
+  }
+  else
+  {
+    packetHandler_->printTxRxResult(comm_result);
+    return false;
+  }
+
+}
+
 uint8_t DynamixelDriver::getToolsFactor(uint8_t id)
 {
   for (int i = 0; i < tools_cnt_; i++)

@@ -1437,13 +1437,18 @@ void SingleDynamixelMonitor::XL(void)
 
 void SingleDynamixelMonitor::XM(void)
 {
-  ControlTableItem* item_ptr = dynamixel_driver_->getControlItemPtr(dxl_id_);
+  uint8_t read_value_array[200] = {0};
+  dynamixel_driver_->readAllRegister(147, read_value_array, dxl_id_);
+
   dynamixel_workbench_msgs::XM xm_state;
+  ControlTableItem* item_ptr = dynamixel_driver_->getControlItemPtr(dxl_id_);
 
   for (int index = 0; index < dynamixel_driver_->getTheNumberOfItem(dxl_id_); index++)
   {
     int32_t read_value = 0;
-    dynamixel_driver_->readRegister(dxl_id_, item_ptr[index].item_name, &read_value);
+
+    dynamixel_driver_->lookupLoadedRegisterValue(read_value_array, item_ptr[index].item_name, &read_value, dxl_id_);
+    //dynamixel_driver_->readRegister(dxl_id_, item_ptr[index].item_name, &read_value);
 
     if (!strncmp(item_ptr[index].item_name, "Model_Number", strlen("Model_Number")))
       xm_state.Model_Number = read_value;
