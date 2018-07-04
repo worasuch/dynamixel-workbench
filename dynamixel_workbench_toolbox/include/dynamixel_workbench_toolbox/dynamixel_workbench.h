@@ -77,7 +77,7 @@ class DynamixelWorkbench
   bool bulkWrite(void);                                              // bulk write
 
   int32_t  itemRead(uint8_t id, const char* item_name);  // read value from item
-  int32_t* syncRead(const char* item_name);              // sync read
+  std::vector<std::vector<int32_t>> syncRead(const char* item_name);              // sync read
   int32_t  bulkRead(uint8_t id, const char* item_name);  // bulk read
 
   void addSyncWrite(const char* item_name);

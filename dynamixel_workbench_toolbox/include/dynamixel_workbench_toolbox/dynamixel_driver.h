@@ -20,6 +20,7 @@
 #define DYNAMIXEL_WORKBENCH_DYNAMIXEL_DRIVER_H
 
 #include "dynamixel_tool.h"
+#include <vector>
 
 #if defined(__OPENCR__) || defined(__OPENCM904__)
   #include <Arduino.h>
@@ -100,7 +101,7 @@ class DynamixelDriver
   bool syncWrite(const char *item_name, int32_t *data);
 
   void addSyncRead(const char *item_name);
-  bool syncRead(const char *item_name, int32_t *data);
+  bool syncRead(const char *item_name, std::vector<std::vector<int32_t>> &data);
 
   void initBulkWrite();
   bool addBulkWriteParam(uint8_t id, const char *item_name, int32_t data);

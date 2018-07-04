@@ -20,6 +20,8 @@
 #define DYNAMIXEL_WORKBENCH_POSITION_CONTROL_H
 
 #include <ros/ros.h>
+#include <iostream>
+#include <vector>
 
 #include "message_header.h"
 

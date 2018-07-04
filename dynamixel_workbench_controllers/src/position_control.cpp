@@ -21,7 +21,7 @@
 PositionControl::PositionControl()
         : node_handle_("") {
     std::string device_name = node_handle_.param<std::string>("device_name", "/dev/ttyUSB0");
-    uint32_t dxl_baud_rate = node_handle_.param<int>("baud_rate", 57600);
+    uint32_t dxl_baud_rate = node_handle_.param<int>("baud_rate", 4000000);
 
     uint8_t scan_range = node_handle_.param<int>("scan_range", 200);
 
@@ -51,9 +51,10 @@ PositionControl::PositionControl()
 //    }
 
     dxl_wb_->addSyncWrite("Goal_Position");
-    dxl_wb_->addSyncRead("Present_Position");
-    dxl_wb_->addSyncRead("Present_Velocity");
-    dxl_wb_->addSyncRead("Present_Current");
+    //dxl_wb_->addSyncRead("Present_Position");
+    //dxl_wb_->addSyncRead("Present_Velocity");
+    //dxl_wb_->addSyncRead("Present_Current");
+    dxl_wb_->addSyncRead("ID");
 
 
     initPublisher();
@@ -140,17 +141,33 @@ void PositionControl::jointStatePublish() {
 
 
     // SYNC READ METHOD
-    int32_t *present_position = dxl_wb_->syncRead("Present_Position");
-    for (int index = 0; index < dxl_cnt_; index++)
-        dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]));
+//    int32_t *present_position = dxl_wb_->syncRead("Present_Position");
+//    for (int index = 0; index < dxl_cnt_; index++)
+//        dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]));
 
-    int32_t *present_velocity = dxl_wb_->syncRead("Present_Velocity");
-    for (int index = 0; index < dxl_cnt_; index++)
-        dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
+//    int32_t *present_velocity = dxl_wb_->syncRead("Present_Velocity");
+//    for (int index = 0; index < dxl_cnt_; index++)
+//        dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
 
-    int32_t *present_current = dxl_wb_->syncRead("Present_Current");
+//    int32_t *present_current = dxl_wb_->syncRead("Present_Current");
+//    for (int index = 0; index < dxl_cnt_; index++) {
+//        dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[1], present_current[index])); // TODO WHY DOES 1 GIVE INF, CHECK CONVERT TO TORQUE.
+//        std::stringstream id_num;
+//        id_num << "id_" << (int) (dxl_id_[index]);
+//        dynamixel_.name.push_back(id_num.str());
+//    }
+
+    int32_t read_value = 0;
+    uint8_t read_value_array[200] = {0};
+
+    std::vector<std::vector<int32_t>> id = dxl_wb_->syncRead("ID");
+
+    //std::cout << id[0][0] << std::endl;
+
     for (int index = 0; index < dxl_cnt_; index++) {
-        dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
+        dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
+        dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
+        dynamixel_.effort.push_back(id[2][index]);      // dxl_wb_->convertValue2Torque(dxl_id_[1], present_current[index])
         std::stringstream id_num;
         id_num << "id_" << (int) (dxl_id_[index]);
         dynamixel_.name.push_back(id_num.str());

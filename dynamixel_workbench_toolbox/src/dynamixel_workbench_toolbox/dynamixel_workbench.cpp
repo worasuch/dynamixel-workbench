@@ -16,6 +16,7 @@
 
 /* Authors: Taehun Lim (Darby) */
 
+#include <iostream>
 #include "../../include/dynamixel_workbench_toolbox/dynamixel_workbench.h"
 
 DynamixelWorkbench::DynamixelWorkbench()
@@ -382,11 +383,13 @@ void DynamixelWorkbench::lookupLoadedRegisterValueWB(uint8_t *read_register_arra
   driver_.lookupLoadedRegisterValue(read_register_array, addr_name, value, id);
 }
 
-int32_t* DynamixelWorkbench::syncRead(const char *item_name)
+std::vector<std::vector<int32_t>> DynamixelWorkbench::syncRead(const char *item_name)
 {
-  static int32_t data[16];
+  std::vector<std::vector<int32_t>> data(3,std::vector<int>(18));
   if (driver_.syncRead(item_name, data))
     return data;
+  else
+    std::cout << "Error in syncRead" << std::endl;
 }
 
 int32_t DynamixelWorkbench::bulkRead(uint8_t id, const char* item_name)

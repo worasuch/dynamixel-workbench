@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "dynamixel_item.h"
+#include <vector>
 
 #if defined(__OPENCR__) || defined(__OPENCM904__)
   #define ITEM_ARRAY_SIZE 14
