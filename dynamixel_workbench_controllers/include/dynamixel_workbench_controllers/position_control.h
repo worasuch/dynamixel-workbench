@@ -59,8 +59,10 @@ private:
 
     // Dynamixel Workbench Parameters
     DynamixelWorkbench *dxl_wb_;
-    uint8_t dxl_id_[16];
+    uint8_t dxl_id_[18];
     uint8_t dxl_cnt_;
+
+    std::vector<int> dxl_id_vector;
 
 public:
     PositionControl();

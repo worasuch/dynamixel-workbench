@@ -540,12 +540,11 @@ void DynamixelDriver::addSyncWrite(const char *item_name) {
                                                                                                 cti->data_length);
 }
 
-bool DynamixelDriver::syncWrite(const char *item_name, int32_t *data) {
+bool DynamixelDriver::syncWrite(const char *item_name, int32_t *data, int commands) {
     bool dxl_addparam_result = false;
     int dxl_comm_result = COMM_TX_FAIL;
 
     uint8_t data_byte[4] = {0,};
-    uint8_t cnt = 0;
 
     SyncWriteHandler swh;
 
@@ -555,27 +554,28 @@ bool DynamixelDriver::syncWrite(const char *item_name, int32_t *data) {
         }
     }
 
-    for (int i = 0; i < tools_cnt_; i++) {
-        for (int j = 0; j < tools_[i].dxl_info_cnt_; j++) {
-            data_byte[0] = DXL_LOBYTE(DXL_LOWORD(data[cnt]));
-            data_byte[1] = DXL_HIBYTE(DXL_LOWORD(data[cnt]));
-            data_byte[2] = DXL_LOBYTE(DXL_HIWORD(data[cnt]));
-            data_byte[3] = DXL_HIBYTE(DXL_HIWORD(data[cnt]));
+    swh.groupSyncWrite->clearParam();
 
-            dxl_addparam_result = swh.groupSyncWrite->addParam(tools_[i].dxl_info_[j].id, (uint8_t *) &data_byte);
+    for (int cnt = 0; cnt < 3*2; cnt+=2) {
+            data_byte[0] = DXL_LOBYTE(DXL_LOWORD(data[cnt+1]));
+            data_byte[1] = DXL_HIBYTE(DXL_LOWORD(data[cnt+1]));
+            data_byte[2] = DXL_LOBYTE(DXL_HIWORD(data[cnt+1]));
+            data_byte[3] = DXL_HIBYTE(DXL_HIWORD(data[cnt+1]));
+
+            dxl_addparam_result = swh.groupSyncWrite->addParam(data[cnt], (uint8_t *) &data_byte);
+
             if (dxl_addparam_result != true) {
                 return false;
             }
-
-            cnt++;
-        }
     }
 
     dxl_comm_result = swh.groupSyncWrite->txPacket();
     if (dxl_comm_result != COMM_SUCCESS) {
         return false;
     }
+
     swh.groupSyncWrite->clearParam();
+
     return true;
 }
 
@@ -587,8 +587,8 @@ void DynamixelDriver::addSyncRead(const char *item_name) {
 
     syncReadHandler_[sync_read_handler_cnt_++].groupSyncRead = new dynamixel::GroupSyncRead(portHandler_,
                                                                                             packetHandler_,
-                                                                                            0,
-                                                                                            147);
+                                                                                            126,
+                                                                                            136);
 
 //    syncReadHandler_[sync_read_handler_cnt_++].groupSyncRead = new dynamixel::GroupSyncRead(portHandler_,
 //                                                                                            packetHandler_,
@@ -628,7 +628,7 @@ bool DynamixelDriver::syncRead(const char *item_name, std::vector<std::vector<in
         for (int j = 0; j < tools_[i].dxl_info_cnt_; j++) {
             uint8_t id = tools_[i].dxl_info_[j].id;
 
-            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 0, 147);
+            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 126, 136);
             if (dxl_getdata_result) {
 
                 data[0][index] = srh.groupSyncRead->getData(id, 132, 4); // POSITION
@@ -822,7 +822,12 @@ float DynamixelDriver::convertValue2Torque(uint8_t id, int16_t value) {
     float torque = 0.0;
     int8_t factor = getToolsFactor(id);
 
-    torque = value / tools_[factor].getTorqueToCurrentValueRatio();
+    float torqueToCurrent = tools_[factor].getTorqueToCurrentValueRatio();
+
+    if(torqueToCurrent != 0)
+        torque = value / tools_[factor].getTorqueToCurrentValueRatio();
+    else
+        torque = value / 149.795;
 
     return torque;
 }

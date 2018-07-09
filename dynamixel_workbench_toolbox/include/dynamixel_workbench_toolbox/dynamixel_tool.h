@@ -40,7 +40,7 @@ typedef struct
 class DynamixelTool
 {
  public:
-  DXLInfo dxl_info_[16];
+  DXLInfo dxl_info_[18];
   uint8_t dxl_info_cnt_;
 
  private:

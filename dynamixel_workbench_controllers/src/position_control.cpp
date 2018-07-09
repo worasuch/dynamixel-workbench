@@ -16,7 +16,7 @@
 
 /* Authors: Taehun Lim (Darby) */
 
-/* Edit by Mathias Thor */
+/* Edit by Mathias Thor --> 2018 - July 09 */
 
 #include "dynamixel_workbench_controllers/position_control.h"
 
@@ -42,8 +42,10 @@ PositionControl::PositionControl()
 
     initMsg();
 
-    for (int index = 0; index < dxl_cnt_; index++)
+    for (int index = 0; index < dxl_cnt_; index++) {
         dxl_wb_->jointMode(dxl_id_[index], profile_velocity, profile_acceleration);
+        dxl_id_vector.push_back(dxl_id_[index]);
+    }
 
     dxl_wb_->initBulkRead();
     dxl_wb_->addSyncWrite("Goal_Position");
@@ -110,7 +112,7 @@ void PositionControl::jointStatePublish() {
     for (int index = 0; index < dxl_cnt_; index++) {
         dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
         dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
-        dynamixel_.effort.push_back(id[2][index]);      // dxl_wb_->convertValue2Torque(dxl_id_[1], present_current[index])
+        dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index]));      // dxl_wb_->convertValue2Torque(dxl_id_[1], id[2][index])
         std::stringstream id_num;
         id_num << "id_" << (int) (dxl_id_[index]);
         dynamixel_.name.push_back(id_num.str());
@@ -137,21 +139,24 @@ bool PositionControl::jointCommandMsgCallback(dynamixel_workbench_msgs::JointCom
     res.result = static_cast<unsigned char>(ret);
 }
 
-void PositionControl::multiJointCommandMsgCallback(const std_msgs::Float32MultiArray &_IDnPOS){//const std_msgs::Int32MultiArray &_ID, const std_msgs::Float32MultiArray &_Position) {
+void PositionControl::multiJointCommandMsgCallback(const std_msgs::Float32MultiArray &_IDnPOS){
 
     // Expecting array to be like: ID, POS, ID, POS, ID, POS, ID, POS....
     std::vector<float> IDnPOS = _IDnPOS.data;
-    int32_t goal_dxl_position[dxl_cnt_] = {0,};
+    int32_t goal_dxl_position[IDnPOS.size()] = {0,};
 
-    int indexX = 0;
-
-    for (int index = 0; index < dxl_cnt_*2; index+=2) {
-        goal_dxl_position[indexX++] = dxl_wb_->convertRadian2Value(IDnPOS[index], IDnPOS[index + 1]);
-        // std::cout << "Moving servo ID: " << IDnPOS[index] << " to position " << IDnPOS[index + 1] << " rad" << std::endl;
+    for (int index = 0; index < IDnPOS.size(); index+=2) {
+        if(std::find(dxl_id_vector.begin(), dxl_id_vector.end(), IDnPOS[index]) != dxl_id_vector.end()) {
+            goal_dxl_position[index] = IDnPOS[index];
+            goal_dxl_position[index+1] = dxl_wb_->convertRadian2Value(IDnPOS[index], IDnPOS[index + 1]);
+        } else
+            ROS_ERROR("ID WAS NOT FOUND");
     }
 
-    // std::cout << "\n" << std::endl;
-    dxl_wb_->syncWrite("Goal_Position", goal_dxl_position);
+    if (!dxl_wb_->syncWrite("Goal_Position", goal_dxl_position, IDnPOS.size())) {
+        ROS_ERROR("ERROR IN SYNCWRITE - Wrong set-point or ID twice?");
+    }
+
 }
 
 int main(int argc, char **argv) {

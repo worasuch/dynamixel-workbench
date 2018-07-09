@@ -98,7 +98,7 @@ class DynamixelDriver
   bool readRegister(uint8_t id, const char *item_name, int32_t *data);
 
   void addSyncWrite(const char *item_name);
-  bool syncWrite(const char *item_name, int32_t *data);
+  bool syncWrite(const char *item_name, int32_t *data, int commands);
 
   void addSyncRead(const char *item_name);
   bool syncRead(const char *item_name, std::vector<std::vector<int32_t>> &data);

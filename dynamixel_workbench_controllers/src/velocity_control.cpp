@@ -134,19 +134,19 @@ void VelocityControl::controlLoop()
 bool VelocityControl::wheelCommandMsgCallback(dynamixel_workbench_msgs::WheelCommand::Request &req,
                                               dynamixel_workbench_msgs::WheelCommand::Response &res)
 {
-  static int32_t goal_velocity[2] = {0, 0};
+/*  static int32_t goal_velocity[2] = {0, 0};
 
   goal_velocity[0] = dxl_wb_->convertVelocity2Value(dxl_id_[0], req.left_vel);
   goal_velocity[1] = dxl_wb_->convertVelocity2Value(dxl_id_[1], (-1) * req.right_vel);
 
   bool ret = dxl_wb_->syncWrite("Goal_Velocity", goal_velocity);
 
-  res.result = ret;
+  res.result = ret;*/
 }
 
 void VelocityControl::commandVelocityCallback(const geometry_msgs::Twist::ConstPtr &msg)
 {
-  bool dxl_comm_result = false;
+/*  bool dxl_comm_result = false;
 
   float wheel_velocity[2] = {0.0, 0.0};
   int32_t dynamixel_velocity[2] = {0, 0};
@@ -163,7 +163,7 @@ void VelocityControl::commandVelocityCallback(const geometry_msgs::Twist::ConstP
   dynamixel_velocity[0] = wheel_velocity[0] * VELOCITY_CONSTANT_VALUE;
   dynamixel_velocity[1] = wheel_velocity[1] * VELOCITY_CONSTANT_VALUE;
 
-  dxl_wb_->syncWrite("Goal_Velocity", dynamixel_velocity);
+  dxl_wb_->syncWrite("Goal_Velocity", dynamixel_velocity);*/
 }
 
 int main(int argc, char **argv)

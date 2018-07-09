@@ -347,11 +347,11 @@ bool DynamixelWorkbench::itemWrite(uint8_t id, const char* item_name, int32_t va
   return comm_result;
 }
 
-bool DynamixelWorkbench::syncWrite(const char *item_name, int32_t* value)
+bool DynamixelWorkbench::syncWrite(const char *item_name, int32_t* value, int commands)
 {
   bool isOK = false;
 
-  isOK =  driver_.syncWrite(item_name, value);
+  isOK =  driver_.syncWrite(item_name, value, commands);
 
   return isOK;
 }

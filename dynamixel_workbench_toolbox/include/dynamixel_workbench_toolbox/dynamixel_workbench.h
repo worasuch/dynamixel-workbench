@@ -73,7 +73,7 @@ class DynamixelWorkbench
   bool goalSpeed(uint8_t id, int32_t goal);
 
   bool itemWrite(uint8_t id, const char* item_name, int32_t value);  // write value to item
-  bool syncWrite(const char *item_name, int32_t* value);             // sync write
+  bool syncWrite(const char *item_name, int32_t* value, int commands);             // sync write
   bool bulkWrite(void);                                              // bulk write
 
   int32_t  itemRead(uint8_t id, const char* item_name);  // read value from item
