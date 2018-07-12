@@ -556,7 +556,7 @@ bool DynamixelDriver::syncWrite(const char *item_name, int32_t *data, int comman
 
     swh.groupSyncWrite->clearParam();
 
-    for (int cnt = 0; cnt < 3*2; cnt+=2) {
+    for (int cnt = 0; cnt < commands; cnt+=2) {
             data_byte[0] = DXL_LOBYTE(DXL_LOWORD(data[cnt+1]));
             data_byte[1] = DXL_HIBYTE(DXL_LOWORD(data[cnt+1]));
             data_byte[2] = DXL_LOBYTE(DXL_HIWORD(data[cnt+1]));
