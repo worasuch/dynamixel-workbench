@@ -65,18 +65,18 @@ PositionControl::~PositionControl() {
 
 void PositionControl::initMsg() {
     printf("--------------------------------------------------------------------------\n");
-    printf("  \n"
-           "  ____                              _          _   ____   ___  ____     \n"
-           " |  _ \\ _   _ _ __   __ _ _ __ ___ (_)_  _____| | |  _ \\ / _ \\/ ___|    \n"
-           " | | | | | | | '_ \\ / _` | '_ ` _ \\| \\ \\/ / _ \\ | | |_) | | | \\___ \\    \n"
-           " | |_| | |_| | | | | (_| | | | | | | |>  <  __/ | |  _ <| |_| |___) |   \n"
-           " |____/ \\__, |_| |_|\\__,_|_| |_| |_|_/_/\\_\\___|_| |_| \\_\\\\___/|____/    \n"
-           "  ____  |___/    _ _   _                ____            _             _ \n"
-           " |  _ \\ ___  ___(_) |_(_) ___  _ __    / ___|___  _ __ | |_ _ __ ___ | |\n"
-           " | |_) / _ \\/ __| | __| |/ _ \\| '_ \\  | |   / _ \\| '_ \\| __| '__/ _ \\| |\n"
-           " |  __/ (_) \\__ \\ | |_| | (_) | | | | | |__| (_) | | | | |_| | | (_) | |\n"
-           " |_|   \\___/|___/_|\\__|_|\\___/|_| |_|  \\____\\___/|_| |_|\\__|_|  \\___/|_|\n"
-           "                                                                                        \n");
+    printf("\n"
+           "  ____                              _          _  \n"
+           " |  _ \\ _   _ _ __   __ _ _ __ ___ (_)_  _____| | \n"
+           " | | | | | | | '_ \\ / _` | '_ ` _ \\| \\ \\/ / _ \\ | \n"
+           " | |_| | |_| | | | | (_| | | | | | | |>  <  __/ | \n"
+           " |____/ \\__, |_| |_|\\__,_|_| |_| |_|_/_/\\_\\___|_| \n"
+           "  ____  |___/ ____    ____       _                \n"
+           " |  _ \\ / _ \\/ ___|  |  _ \\ _ __(_)_   _____ _ __ \n"
+           " | |_) | | | \\___ \\  | | | | '__| \\ \\ / / _ \\ '__|\n"
+           " |  _ <| |_| |___) | | |_| | |  | |\\ V /  __/ |   \n"
+           " |_| \\_\\\\___/|____/  |____/|_|  |_| \\_/ \\___|_|   \n"
+           "                                                  \n");
     printf("--------------------------------------------------------------------------\n");
     printf("\n");
 
@@ -89,7 +89,13 @@ void PositionControl::initMsg() {
 }
 
 void PositionControl::initPublisher() {
-    joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("joint_states", 10);
+    //joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("joint_states", 1);
+    joint_ID_pub_ = node_handle_.advertise<std_msgs::Int32MultiArray>("joint_IDs", 1);
+    joint_position_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_positions", 1);
+    joint_torque_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_torques", 1);
+    joint_velocity_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_velocities", 1);
+    joint_errorStatus_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_errorStates", 1);
+
 }
 
 void PositionControl::initSubscriber() {
@@ -103,22 +109,41 @@ void PositionControl::initServer() {
 }
 
 void PositionControl::jointStatePublish() {
-    sensor_msgs::JointState dynamixel_;
-    dynamixel_.header.stamp = ros::Time::now();
+    //sensor_msgs::JointState dynamixel_;
+    //dynamixel_.header.stamp = ros::Time::now();
+
+    // IDs Vector:
+    std_msgs::Int32MultiArray IDs;
+    // Position Vector:
+    std_msgs::Float32MultiArray positions;
+    // Velocities Vector:
+    std_msgs::Float32MultiArray velocities;
+    // Torques Vector:
+    std_msgs::Float32MultiArray torques;
+    // Error States Vector:
+    std_msgs::Float32MultiArray errorStates;
 
     // SYNC READ METHOD
     std::vector<std::vector<int32_t>> id = dxl_wb_->syncRead("ID");
 
     for (int index = 0; index < dxl_cnt_; index++) {
-        dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
-        dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
-        dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index]));      // dxl_wb_->convertValue2Torque(dxl_id_[1], id[2][index])
-        std::stringstream id_num;
-        id_num << "id_" << (int) (dxl_id_[index]);
-        dynamixel_.name.push_back(id_num.str());
+        //dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
+        //dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
+        //dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index]));
+
+        positions.data.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
+        velocities.data.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
+        torques.data.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index]));
+        errorStates.data.push_back(id[3][index]);
+        IDs.data.push_back(dxl_id_[index]);
     }
 
-    joint_states_pub_.publish(dynamixel_);
+    //joint_states_pub_.publish(dynamixel_);
+    joint_ID_pub_.publish(IDs);
+    joint_position_pub_.publish(positions);
+    joint_velocity_pub_.publish(velocities);
+    joint_torque_pub_.publish(torques);
+    joint_errorStatus_pub_.publish(errorStates);
 }
 
 void PositionControl::controlLoop() {
@@ -162,7 +187,7 @@ void PositionControl::multiJointCommandMsgCallback(const std_msgs::Float32MultiA
 int main(int argc, char **argv) {
     // Init ROS node
 
-    ros::init(argc, argv, "position_control");
+    ros::init(argc, argv, "dynamixel_ROS_driver");
     PositionControl pos_ctrl;
     //ros::Rate loop_rate(250);
     while (ros::ok()) {

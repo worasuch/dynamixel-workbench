@@ -385,7 +385,7 @@ void DynamixelWorkbench::lookupLoadedRegisterValueWB(uint8_t *read_register_arra
 
 std::vector<std::vector<int32_t>> DynamixelWorkbench::syncRead(const char *item_name)
 {
-  std::vector<std::vector<int32_t>> data(3,std::vector<int>(18));
+  std::vector<std::vector<int32_t>> data(4, std::vector<int>(18));
   if (driver_.syncRead(item_name, data))
     return data;
   else

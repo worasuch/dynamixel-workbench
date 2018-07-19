@@ -47,6 +47,11 @@ private:
 
     // ROS Topic Publisher
     ros::Publisher joint_states_pub_;
+    ros::Publisher joint_ID_pub_;
+    ros::Publisher joint_position_pub_;
+    ros::Publisher joint_torque_pub_;
+    ros::Publisher joint_velocity_pub_;
+    ros::Publisher joint_errorStatus_pub_;
 
     // ROS Topic Subscriber
     ros::Subscriber joint_command_sub_;

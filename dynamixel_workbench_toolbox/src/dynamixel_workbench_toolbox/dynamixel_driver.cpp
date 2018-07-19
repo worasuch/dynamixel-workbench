@@ -587,7 +587,7 @@ void DynamixelDriver::addSyncRead(const char *item_name) {
 
     syncReadHandler_[sync_read_handler_cnt_++].groupSyncRead = new dynamixel::GroupSyncRead(portHandler_,
                                                                                             packetHandler_,
-                                                                                            126,
+                                                                                            70,
                                                                                             136);
 
 //    syncReadHandler_[sync_read_handler_cnt_++].groupSyncRead = new dynamixel::GroupSyncRead(portHandler_,
@@ -628,12 +628,13 @@ bool DynamixelDriver::syncRead(const char *item_name, std::vector<std::vector<in
         for (int j = 0; j < tools_[i].dxl_info_cnt_; j++) {
             uint8_t id = tools_[i].dxl_info_[j].id;
 
-            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 126, 136);
+            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 70, 136);
             if (dxl_getdata_result) {
 
                 data[0][index] = srh.groupSyncRead->getData(id, 132, 4); // POSITION
                 data[1][index] = srh.groupSyncRead->getData(id, 128, 4);   // VELOCITY
-                data[2][index++] = srh.groupSyncRead->getData(id, 126, 2);   // CURRENT
+                data[2][index] = srh.groupSyncRead->getData(id, 126, 2);   // CURRENT
+                data[3][index++] = srh.groupSyncRead->getData(id, 70, 1);   // ERROR STATUS
 
             } else {
                 return false;
