@@ -100,6 +100,7 @@ void PositionControl::initPublisher() {
 
 void PositionControl::initSubscriber() {
     multi_joint_command_server_ = node_handle_.subscribe("multi_joint_command", 1, &PositionControl::multiJointCommandMsgCallback, this);
+    joint_reboot_ = node_handle_.subscribe("joint_reboot", 1, &PositionControl::jointRebootCallback, this);
 
 }
 
@@ -144,6 +145,9 @@ void PositionControl::jointStatePublish() {
     joint_velocity_pub_.publish(velocities);
     joint_torque_pub_.publish(torques);
     joint_errorStatus_pub_.publish(errorStates);
+
+    IDsLocal = IDs.data;
+    errorStatesLocal = errorStates.data;
 }
 
 void PositionControl::controlLoop() {
@@ -164,6 +168,38 @@ bool PositionControl::jointCommandMsgCallback(dynamixel_workbench_msgs::JointCom
     res.result = static_cast<unsigned char>(ret);
 }
 
+void PositionControl::jointRebootCallback(const std_msgs::Int32 &_ID){
+    // RESET JOINTS WITH ERRORS (-1)
+    if(_ID.data == -1){
+        for (int i = 0; i < errorStatesLocal.size(); ++i) {
+            if(errorStatesLocal[i] != 0) {
+                if (!dxl_wb_->reboot(IDsLocal[i])) {
+                    ROS_ERROR("COULD NOT REBOOT JOINT ID_%i", IDsLocal[i]);
+                } else
+                    ROS_INFO("JOINT ID_%i REBOOTED", IDsLocal[i]);
+
+            }
+        }
+    }
+    // RESET ALL (-2)
+    else if(_ID.data == -2){
+        for (int i = 0; i < errorStatesLocal.size(); ++i) {
+            if (!dxl_wb_->reboot(IDsLocal[i])) {
+                ROS_ERROR("COULD NOT REBOOT JOINT ID_%i", IDsLocal[i]);
+            } else
+                ROS_INFO("JOINT ID_%i REBOOTED", IDsLocal[i]);
+        }
+    }
+    // RESET SPECIFIC JOINT (ID)
+    else {
+        if (!dxl_wb_->reboot(_ID.data)){
+            ROS_ERROR("COULD NOT REBOOT JOINT ID_%i", _ID.data);
+        } else
+            ROS_INFO("JOINT ID_%i REBOOTED", _ID.data);
+    }
+
+}
+
 void PositionControl::multiJointCommandMsgCallback(const std_msgs::Float32MultiArray &_IDnPOS){
 
     // Expecting array to be like: ID, POS, ID, POS, ID, POS, ID, POS....
@@ -179,7 +215,7 @@ void PositionControl::multiJointCommandMsgCallback(const std_msgs::Float32MultiA
     }
 
     if (!dxl_wb_->syncWrite("Goal_Position", goal_dxl_position, IDnPOS.size())) {
-        ROS_ERROR("ERROR IN SYNCWRITE - Wrong set-point or ID twice?");
+        ROS_ERROR("ERROR IN SYNCWRITE. WRONG SET-POINT OR SAME ID TWICE?");
     }
 
 }

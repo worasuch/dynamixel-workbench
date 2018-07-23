@@ -56,6 +56,8 @@ private:
     // ROS Topic Subscriber
     ros::Subscriber joint_command_sub_;
     ros::Subscriber multi_joint_command_server_;
+    ros::Subscriber joint_reboot_;
+
 
     // ROS Service Server
     ros::ServiceServer joint_command_server_;
@@ -67,7 +69,9 @@ private:
     uint8_t dxl_id_[18];
     uint8_t dxl_cnt_;
 
-    std::vector<int> dxl_id_vector;
+    std::vector<int>  dxl_id_vector;
+    std::vector<int>  IDsLocal;
+    std::vector<float>  errorStatesLocal;
 
 public:
     PositionControl();
@@ -91,6 +95,7 @@ private:
                                  dynamixel_workbench_msgs::JointCommand::Response &res);
 
     void multiJointCommandMsgCallback(const std_msgs::Float32MultiArray &_ID);
+    void jointRebootCallback(const std_msgs::Int32 &_IDnPOS);
 };
 
 #endif //DYNAMIXEL_WORKBENCH_POSITION_CONTROL_H
