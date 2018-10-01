@@ -1819,8 +1819,8 @@ void SingleDynamixelMonitor::PRO(void)
       pro_state.Return_Delay_Time = read_value;
     else if (!strncmp(item_ptr[index].item_name, "Operating_Mode", strlen("Operating_Mode")))
       pro_state.Operating_Mode = read_value;
-    else if (!strncmp(item_ptr[index].item_name, "Homing_Offset", strlen("Homing_Offset")))
-      pro_state.Homing_Offset = read_value;
+    // else if (!strncmp(item_ptr[index].item_name, "Homing_Offset", strlen("Homing_Offset")))
+      // pro_state.Homing_Offset = read_value;
     else if (!strncmp(item_ptr[index].item_name, "Moving_Threshold", strlen("Moving_Threshold")))
       pro_state.Moving_Threshold = read_value;
     else if (!strncmp(item_ptr[index].item_name, "Temperature_Limit", strlen("Temperature_Limit")))

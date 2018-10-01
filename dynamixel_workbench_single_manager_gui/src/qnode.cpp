@@ -1139,7 +1139,7 @@ void QNode::PROStatusMsgCallback(const dynamixel_workbench_msgs::PRO::ConstPtr &
   log(std::string("Baud_Rate: "), msg->Baud_Rate);
   log(std::string("Return_Delay_Time: "), msg->Return_Delay_Time);
   log(std::string("Operating_Mode: "), msg->Operating_Mode);
-  log(std::string("Homing_Offset: "), msg->Homing_Offset);
+  //log(std::string("Homing_Offset: "), msg->Homing_Offset);
   log(std::string("Moving_Threshold: "), msg->Moving_Threshold);
   log(std::string("Temperature_Limit: "), msg->Temperature_Limit);
   log(std::string("Max_Voltage_Limit: "), msg->Max_Voltage_Limit);

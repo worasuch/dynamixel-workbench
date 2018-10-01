@@ -420,12 +420,12 @@ bool DynamixelDriver::readAllRegister(int last_address, uint8_t *value_array, ui
 
     if (comm_result == COMM_SUCCESS) {
         if (error != 0) {
-            packetHandler_->printRxPacketError(error);
+            //packetHandler_->printRxPacketError(error);
         }
 
         return true;
     } else {
-        packetHandler_->printTxRxResult(comm_result);
+        //packetHandler_->printTxRxResult(comm_result);
         return false;
     }
 
@@ -628,13 +628,15 @@ bool DynamixelDriver::syncRead(const char *item_name, std::vector<std::vector<in
         for (int j = 0; j < tools_[i].dxl_info_cnt_; j++) {
             uint8_t id = tools_[i].dxl_info_[j].id;
 
-            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 70, 136);
+            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 70, 168);
             if (dxl_getdata_result) {
 
                 data[0][index] = srh.groupSyncRead->getData(id, 132, 4); // POSITION
                 data[1][index] = srh.groupSyncRead->getData(id, 128, 4);   // VELOCITY
                 data[2][index] = srh.groupSyncRead->getData(id, 126, 2);   // CURRENT
                 data[3][index++] = srh.groupSyncRead->getData(id, 70, 1);   // ERROR STATUS
+                data[4][index++] = srh.groupSyncRead->getData(id, 144, 2);   // INPUT VOLTAGE
+                data[5][index++] = srh.groupSyncRead->getData(id, 146, 1);   // TEMPERATURE
 
             } else {
                 return false;
@@ -828,7 +830,7 @@ float DynamixelDriver::convertValue2Torque(uint8_t id, int16_t value) {
     if(torqueToCurrent != 0)
         torque = value / tools_[factor].getTorqueToCurrentValueRatio();
     else
-        torque = value / 149.795;
+        torque = value / 149.795386991;
 
     return torque;
 }

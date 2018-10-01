@@ -95,6 +95,8 @@ void PositionControl::initPublisher() {
     joint_torque_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_torques", 1);
     joint_velocity_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_velocities", 1);
     joint_errorStatus_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_errorStates", 1);
+    joint_inputVoltage_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_inputVoltage", 1);
+    joint_temperature_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_temperature", 1);
 
 }
 
@@ -123,19 +125,23 @@ void PositionControl::jointStatePublish() {
     std_msgs::Float32MultiArray torques;
     // Error States Vector:
     std_msgs::Float32MultiArray errorStates;
+    // Input Voltages Vector:
+    std_msgs::Float32MultiArray inputVoltages;
+    // Input Voltages Vector:
+    std_msgs::Float32MultiArray temperatures;
 
     // SYNC READ METHOD
     std::vector<std::vector<int32_t>> id = dxl_wb_->syncRead("ID");
 
     for (int index = 0; index < dxl_cnt_; index++) {
-        //dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
-        //dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
-        //dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index]));
-
         positions.data.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
         velocities.data.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
-        torques.data.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index]));
+        torques.data.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], static_cast<int16_t>(id[2][index])));
         errorStates.data.push_back(id[3][index]);
+
+        inputVoltages.data.push_back(id[4][index]);
+        temperatures.data.push_back(id[5][index]);
+
         IDs.data.push_back(dxl_id_[index]);
     }
 
@@ -145,6 +151,8 @@ void PositionControl::jointStatePublish() {
     joint_velocity_pub_.publish(velocities);
     joint_torque_pub_.publish(torques);
     joint_errorStatus_pub_.publish(errorStates);
+    joint_inputVoltage_pub_.publish(inputVoltages);
+    joint_temperature_pub_.publish(temperatures);
 
     IDsLocal = IDs.data;
     errorStatesLocal = errorStates.data;
