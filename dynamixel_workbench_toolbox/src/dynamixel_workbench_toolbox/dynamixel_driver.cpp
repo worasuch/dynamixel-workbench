@@ -588,7 +588,7 @@ void DynamixelDriver::addSyncRead(const char *item_name) {
     syncReadHandler_[sync_read_handler_cnt_++].groupSyncRead = new dynamixel::GroupSyncRead(portHandler_,
                                                                                             packetHandler_,
                                                                                             70,
-                                                                                            136);
+                                                                                            147);
 
 //    syncReadHandler_[sync_read_handler_cnt_++].groupSyncRead = new dynamixel::GroupSyncRead(portHandler_,
 //                                                                                            packetHandler_,
@@ -628,14 +628,14 @@ bool DynamixelDriver::syncRead(const char *item_name, std::vector<std::vector<in
         for (int j = 0; j < tools_[i].dxl_info_cnt_; j++) {
             uint8_t id = tools_[i].dxl_info_[j].id;
 
-            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 70, 168);
+            dxl_getdata_result = srh.groupSyncRead->isAvailable(id, 70, 147); // Remember to edit line 591 as well
             if (dxl_getdata_result) {
 
                 data[0][index] = srh.groupSyncRead->getData(id, 132, 4); // POSITION
                 data[1][index] = srh.groupSyncRead->getData(id, 128, 4);   // VELOCITY
                 data[2][index] = srh.groupSyncRead->getData(id, 126, 2);   // CURRENT
-                data[3][index++] = srh.groupSyncRead->getData(id, 70, 1);   // ERROR STATUS
-                data[4][index++] = srh.groupSyncRead->getData(id, 144, 2);   // INPUT VOLTAGE
+                data[3][index] = srh.groupSyncRead->getData(id, 70, 1);   // ERROR STATUS
+                data[4][index] = srh.groupSyncRead->getData(id, 144, 2);   // INPUT VOLTAGE
                 data[5][index++] = srh.groupSyncRead->getData(id, 146, 1);   // TEMPERATURE
 
             } else {

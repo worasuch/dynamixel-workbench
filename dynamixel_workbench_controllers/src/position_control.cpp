@@ -134,13 +134,12 @@ void PositionControl::jointStatePublish() {
     std::vector<std::vector<int32_t>> id = dxl_wb_->syncRead("ID");
 
     for (int index = 0; index < dxl_cnt_; index++) {
-        positions.data.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index]));
-        velocities.data.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index]));
-        torques.data.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], static_cast<int16_t>(id[2][index])));
+        positions.data.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index])); // Converted to rad
+        velocities.data.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index])); // Converted to rad/s
+        torques.data.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index])); // Converted to Nm
         errorStates.data.push_back(id[3][index]);
-
-        inputVoltages.data.push_back(id[4][index]);
-        temperatures.data.push_back(id[5][index]);
+        inputVoltages.data.push_back(id[4][index]*0.1); // Converted to Volt
+        temperatures.data.push_back(id[5][index]); // Already in degree
 
         IDs.data.push_back(dxl_id_[index]);
     }
