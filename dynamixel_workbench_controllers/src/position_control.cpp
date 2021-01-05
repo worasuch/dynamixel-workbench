@@ -17,6 +17,7 @@
 /* Authors: Taehun Lim (Darby) */
 
 /* Edit by Mathias Thor --> 2018 - July 09 */
+/* Edit by Worasuchad Haomachai --> 2021 - Jan 05 */
 
 #include "dynamixel_workbench_controllers/position_control.h"
 
@@ -97,6 +98,7 @@ void PositionControl::initPublisher() {
     joint_errorStatus_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_errorStates", 1);
     joint_inputVoltage_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_inputVoltage", 1);
     joint_temperature_pub_ = node_handle_.advertise<std_msgs::Float32MultiArray>("joint_temperature", 1);
+    joint_current_pub_= node_handle_.advertise<std_msgs::Float32MultiArray>("joint_current", 1);
 
 }
 
@@ -129,6 +131,8 @@ void PositionControl::jointStatePublish() {
     std_msgs::Float32MultiArray inputVoltages;
     // Input Voltages Vector:
     std_msgs::Float32MultiArray temperatures;
+    // Current Vector:
+    std_msgs::Float32MultiArray current;
 
     // SYNC READ METHOD
     std::vector<std::vector<int32_t>> id = dxl_wb_->syncRead("ID");
@@ -137,6 +141,7 @@ void PositionControl::jointStatePublish() {
         positions.data.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], id[0][index])); // Converted to rad
         velocities.data.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], id[1][index])); // Converted to rad/s
         torques.data.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], id[2][index])); // Converted to Nm
+        current.data.push_back((int16_t)id[2][index]*2.69); // present current (mA)
         errorStates.data.push_back(id[3][index]);
         inputVoltages.data.push_back(id[4][index]*0.1); // Converted to Volt
         temperatures.data.push_back(id[5][index]); // Already in degree
@@ -152,6 +157,7 @@ void PositionControl::jointStatePublish() {
     joint_errorStatus_pub_.publish(errorStates);
     joint_inputVoltage_pub_.publish(inputVoltages);
     joint_temperature_pub_.publish(temperatures);
+    joint_current_pub_.publish(current);
 
     IDsLocal = IDs.data;
     errorStatesLocal = errorStates.data;
