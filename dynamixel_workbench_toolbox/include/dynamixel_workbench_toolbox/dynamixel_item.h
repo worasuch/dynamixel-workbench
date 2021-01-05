@@ -23,7 +23,7 @@
 
 #define AX_12A     12
 #define AX_12W     300
-#define AX_18A     18
+#define AX_18A     19
 
 #define RX_10      10
 #define RX_24F     24
