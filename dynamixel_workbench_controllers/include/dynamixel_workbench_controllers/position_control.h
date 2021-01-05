@@ -54,6 +54,7 @@ private:
     ros::Publisher joint_errorStatus_pub_;
     ros::Publisher joint_inputVoltage_pub_;
     ros::Publisher joint_temperature_pub_;
+    ros::Publisher joint_current_pub_;
 
     // ROS Topic Subscriber
     ros::Subscriber joint_command_sub_;
